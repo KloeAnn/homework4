@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>homework4</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/ext-all.css" />
+    <!-- LIBS -->
+    <script type="text/javascript" src="../../adapter/ext/ext-base.js"></script>
+    <!-- ENDLIBS -->
+    <script type="text/javascript" src="../../ext-all.js"></script>
+    <script>
+        Ext.onReady(function () {
+
+
+            var creatColoum = function (coloum) {
+                var str = '<tr>'
+                for (var i = 0; i < coloum; i++) {
+                    str += '<td>{name}</td>'
+                }
+                str += '</tr>\n'
+                return str
+            }
+
+            var tpl;
+
+            var contextMenu = new Ext.menu.Menu({
+                items: [{
+                    text: 'edit',
+                    menu: [{
+                        text: 'reset',
+                        handler: function () {
+                            Ext.getCmp('textarea').reset()
+                        }
+                    }]
+                }, {
+                    text: 'insert',
+                    menu: [{
+                        text: 'table',
+                        handler: function () {
+                            insertTable()
+                        }
+                    }]
+                }]
+            })
+
+
+
+
+            var panel = new Ext.Panel({
+                renderTo: document.body,
+                width: 600,
+                items: [{
+                    xtype: 'toolbar',
+                    id: 'toolbar',
+                    items: [{
+                        text: 'edit',
+                        menu: [{
+                            text: 'reset',
+                            handler: function () {
+                                Ext.getCmp('textarea').reset()
+                            }
+                        }]
+                    },
+                        '-',
+                    {
+                        text: 'insert',
+                        menu: [{
+                            text: 'table',
+                            handler: function () {
+                                insertTable()
+                            }
+                        }]
+                    }]
+                }, {
+                    xtype: 'textarea',
+                    id: 'textarea',
+                    width: 600,
+                    value: '',
+                }, {
+                    id: 'submit-btn',
+                    xtype: 'button',
+                    text: 'submit',
+                    handler: function () {
+                        console.log(Ext.getCmp('textarea').getValue())
+                        if (Ext.getCmp('textarea').getValue() !== '') {
+                            Ext.MessageBox.show({
+                                title: 'Please wait',
+                                msg: 'Reply...',
+                                progressText: 'Initializing...',
+                                width: 300,
+                                progress: true,
+                                closable: false,
+                                animEl: document.body
+                            });
+
+                            var f = function (v) {
+                                return function () {
+                                    if (v == 6) {
+                                        Ext.MessageBox.hide();
+                                        Ext.Msg.alert('Sucess');
+                                    } else {
+                                        var i = v / 5;
+                                        Ext.MessageBox.updateProgress(i, Math.round(100 * i) + '% completed');
+                                    }
+                                };
+                            };
+                            for (var i = 1; i < 7; i++) {
+                                setTimeout(f(i), i * 500);
+                            }
+
+
+                        } else {
+                            Ext.getCmp('submit-btn').disabled = true
+                        }
+
+
+                    }
+                }],
+            })
+
+            var win = new Ext.Window({
+                el: 'win',
+                width: 300,
+                height: 200,
+                layout: 'form',
+                title: 'Insert new table',
+                closeAction: 'hide',
+                modal: true,
+                items: [{
+                    html: 'Please input rows and coloums number of new table.'
+                }, {
+                    id: 'rowNumber',
+                    xtype: 'textfield',
+                    fieldLabel: 'rows number'
+                }, {
+                    id: 'coloumNumber',
+                    xtype: 'textfield',
+                    fieldLabel: 'coloums number'
+                }],
+                buttons: [{
+                    text: '确认',
+                    handler: function () {
+                        var rows = Ext.getCmp('rowNumber').getValue()
+                        var cols = Ext.getCmp('coloumNumber').getValue()
+                        if (!(rows && cols)) {
+                            Ext.Msg.alert('请填写完整行或列数！')
+                        } else {
+                            var data = []
+
+                            let count = 1
+                            for (let i = 0; i < rows; i++) {
+                                data[i] = []
+                                for (let j = 0; j < cols; j++) {
+                                    data[i][j] = count
+                                }
+                            }
+
+                            tpl = new Ext.XTemplate(
+                                '<table border="1">',
+                                '<tpl for="values">',
+                                '<tr>',
+                                '<tpl for="values">',
+                                '<td>hello</td>',
+                                '</tpl>',
+                                '</tr>',
+                                '</tpl>',
+                                '</table>',
+                            );
+
+                            tpl.overwrite("table", data);
+
+                            this.ownerCt.ownerCt.close()
+                            Ext.Msg.alert('创建表格成功！')
+                        }
+                    }
+                }, {
+                    text: '取消',
+                    handler: function () {
+                        this.ownerCt.ownerCt.close()
+                    }
+                }]
+            })
+
+
+
+            const doc = Ext.getDoc();
+            Ext.get(doc).on('contextmenu', function (e) {
+                e.preventDefault();
+                contextMenu.showAt(e.getXY());
+            });
+
+            var insertTable = function () {
+                win.show()
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div id="win"></div>
+    <div id="table"></div>
+</body>
+
+</html>
